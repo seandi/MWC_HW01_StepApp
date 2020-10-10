@@ -71,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         app:singleSelection="true"
+        app:selectionRequired="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.914"
         app:layout_constraintStart_toStartOf="parent"
@@ -79,17 +80,55 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/toggleStart"
             style="?attr/materialButtonOutlinedStyle"
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/toggle_start"/>
+            android:text="@string/toggle_start"
+            app:icon="@drawable/ic_start"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/toggleStop"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/toggle_stop" />
+            android:text="@string/toggle_stop"
+            app:icon="@drawable/ic_stop"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toggleReset"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/toggle_reset"
+            app:icon="@drawable/ic_reset"/>
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleButtonGroupStepMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="44dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toggleAcc"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/toggle_acc" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toggleAndroidStepDetector"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/toggle_step_detector" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

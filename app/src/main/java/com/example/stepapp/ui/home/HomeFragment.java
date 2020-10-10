@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.stepapp.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.text.SimpleDateFormat;
@@ -29,12 +30,14 @@ import java.util.TimeZone;
 
 public class HomeFragment extends Fragment {
     MaterialButtonToggleGroup materialButtonToggleGroup;
+    MaterialButtonToggleGroup buttonToggleGroupStepMode;
+    MaterialButton stepDetectorButton;
 
     // Text view and Progress Bar variables
     public TextView stepsCountTextView;
     public ProgressBar stepsCountProgressBar;
 
-    private SensorEventListener listener;
+    private StepCounterListener listener;
 
     // TODO 1: ACC sensors.
     private Sensor accelerometerSensor;
@@ -64,17 +67,18 @@ public class HomeFragment extends Fragment {
 
         // TODO 11
         // instantiate the StepCounterListener
-        listener = new StepCounterListener(stepsCountTextView, stepsCountProgressBar);
+        listener = new StepCounterListener(stepsCountTextView, stepsCountProgressBar, getContext());
 
         // Toggle group button
         materialButtonToggleGroup = (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroup);
         materialButtonToggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (group.getCheckedButtonId() == R.id.toggleStart) {
+                if (group.getCheckedButtonId() == R.id.toggleStart && isChecked) {
 
                     //Place code related to Start button
                     Toast.makeText(getContext(), "START", Toast.LENGTH_SHORT).show();
+
 
                     // TODO 3: Check if the Accelerometer sensor exists
                     if(accelerometerSensor != null){
@@ -92,17 +96,44 @@ public class HomeFragment extends Fragment {
                     }
 
 
-                } else if (group.getCheckedButtonId() == R.id.toggleStop) {
+                }
+                else if (group.getCheckedButtonId() == R.id.toggleStop && isChecked) {
                     //Place code related to Stop button
                     Toast.makeText(getContext(), "STOP", Toast.LENGTH_SHORT).show();
 
                     // TODO 4: Unregister the listener
                     sensorManager.unregisterListener(listener);
                 }
+                else if(group.getCheckedButtonId() == R.id.toggleReset && isChecked){
+                    Toast.makeText(getContext(), "RESET", Toast.LENGTH_SHORT).show();
+                    listener = new StepCounterListener(stepsCountTextView, stepsCountProgressBar, getContext());
+
+                }
+
+
             }
         });
+
+        buttonToggleGroupStepMode= (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroupStepMode);
+        buttonToggleGroupStepMode.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+            @Override
+            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
+                if(group.getCheckedButtonId() == R.id.toggleAcc && isChecked){
+                    listener.enable_accelerator();
+                    Toast.makeText(getContext(), "Switched to accelerometer", Toast.LENGTH_SHORT).show();
+                }
+                else if(group.getCheckedButtonId() == R.id.toggleAndroidStepDetector && isChecked){
+                    listener.enable_step_counter();
+                    Toast.makeText(getContext(), "Switched to Android step detector", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // enable Android step detector
+        root.findViewById(R.id.toggleAndroidStepDetector).performClick();
         //////////////////////////////////////
         return root;
+
 
 
     }
@@ -121,17 +152,22 @@ class StepCounterListener implements SensorEventListener {
     int stepThreshold = 6;
 
     // Android step detector
-    int mAndroidStepCount = 0;
+    private int mAndroidStepCount = 0;
 
     // TextView
-    TextView stepsCountTextView;
+    private TextView stepsCountTextView;
     // ProgressBar
-    ProgressBar stepsCountProgressBar;
+    private ProgressBar stepsCountProgressBar;
+    private Context context;
+    boolean use_acc = false;
+    boolean use_step_counter = true;
+
 
     //TODO 10
-    public StepCounterListener(TextView stepsCountTextView, ProgressBar stepsCountProgressBar){
+    public StepCounterListener(TextView stepsCountTextView, ProgressBar stepsCountProgressBar, Context context){
         this.stepsCountTextView = stepsCountTextView;
         this.stepsCountProgressBar = stepsCountProgressBar;
+        this.context = context;
     }
 
 
@@ -184,11 +220,12 @@ class StepCounterListener implements SensorEventListener {
 
             // case Step detector
             case Sensor.TYPE_STEP_DETECTOR:
-
-            // Calculate the number of steps
-                countSteps(event.values[0]);
-                stepsCountTextView.setText(String.valueOf(mAndroidStepCount));
-                stepsCountProgressBar.setProgress(mAndroidStepCount);
+                // Calculate the number of steps
+                if(use_step_counter){
+                    countSteps(event.values[0]);
+                    stepsCountTextView.setText(String.valueOf(mAndroidStepCount));
+                    stepsCountProgressBar.setProgress(mAndroidStepCount);
+                }
 
         }
     }
@@ -238,7 +275,12 @@ class StepCounterListener implements SensorEventListener {
 
                     //TODO 12: update the text view
                     //use only step counter to update step count on screen
-                    //stepsCountTextView.setText(String.valueOf(mACCStepCounter));
+                    if(use_acc) {
+                        stepsCountTextView.setText(String.valueOf(mACCStepCounter));
+                        if (mACCStepCounter == 100) {
+                            Toast.makeText(context, "GOAL REACHED!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
             }
         }
@@ -248,7 +290,19 @@ class StepCounterListener implements SensorEventListener {
     private void countSteps(float step) {
         mAndroidStepCount += 1;
         Log.d("STEP DETECTOR STEPS: ", String.valueOf(mAndroidStepCount));
+        if(mAndroidStepCount == 100){
+            Toast.makeText(context, "GOAL REACHED!", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    public void enable_accelerator(){
+        use_acc = true;
+        use_step_counter = false;
+    }
+
+    public void enable_step_counter(){
+        use_acc = false;
+        use_step_counter = true;
     }
 }
 
