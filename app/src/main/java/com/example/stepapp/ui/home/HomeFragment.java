@@ -121,12 +121,22 @@ public class HomeFragment extends Fragment {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 if(group.getCheckedButtonId() == R.id.toggleAcc && isChecked){
-                    listener.enable_accelerator();
-                    Toast.makeText(getContext(), "Switched to accelerometer", Toast.LENGTH_SHORT).show();
+                    if(accelerometerSensor != null){
+                        listener.enable_accelerator();
+                        Toast.makeText(getContext(), "Switched to accelerometer", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getContext(),R.string.acc_not_available,Toast.LENGTH_SHORT).show();
+                    }
+
                 }
                 else if(group.getCheckedButtonId() == R.id.toggleAndroidStepDetector && isChecked){
-                    listener.enable_step_counter();
-                    Toast.makeText(getContext(), "Switched to Android step detector", Toast.LENGTH_SHORT).show();
+                    if(stepDetectorSensor != null){
+                        listener.enable_step_counter();
+                        Toast.makeText(getContext(), "Switched to Android step detector", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getContext(), R.string.step_not_available, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
         });
