@@ -106,7 +106,9 @@ public class HomeFragment extends Fragment {
                 }
                 else if(group.getCheckedButtonId() == R.id.toggleReset && isChecked){
                     Toast.makeText(getContext(), "RESET", Toast.LENGTH_SHORT).show();
-                    listener = new StepCounterListener(stepsCountTextView, stepsCountProgressBar, getContext());
+                    sensorManager.unregisterListener(listener);
+                    listener.reset();
+
 
                 }
 
@@ -221,10 +223,13 @@ class StepCounterListener implements SensorEventListener {
             // case Step detector
             case Sensor.TYPE_STEP_DETECTOR:
                 // Calculate the number of steps
+                countSteps(event.values[0]);
                 if(use_step_counter){
-                    countSteps(event.values[0]);
                     stepsCountTextView.setText(String.valueOf(mAndroidStepCount));
                     stepsCountProgressBar.setProgress(mAndroidStepCount);
+                    if(mAndroidStepCount == 100){
+                        Toast.makeText(context, "GOAL REACHED!", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
         }
@@ -277,6 +282,7 @@ class StepCounterListener implements SensorEventListener {
                     //use only step counter to update step count on screen
                     if(use_acc) {
                         stepsCountTextView.setText(String.valueOf(mACCStepCounter));
+                        stepsCountProgressBar.setProgress(mACCStepCounter);
                         if (mACCStepCounter == 100) {
                             Toast.makeText(context, "GOAL REACHED!", Toast.LENGTH_SHORT).show();
                         }
@@ -290,19 +296,27 @@ class StepCounterListener implements SensorEventListener {
     private void countSteps(float step) {
         mAndroidStepCount += 1;
         Log.d("STEP DETECTOR STEPS: ", String.valueOf(mAndroidStepCount));
-        if(mAndroidStepCount == 100){
-            Toast.makeText(context, "GOAL REACHED!", Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void enable_accelerator(){
         use_acc = true;
         use_step_counter = false;
+        stepsCountTextView.setText(String.valueOf(mACCStepCounter));
+        stepsCountProgressBar.setProgress(mACCStepCounter);
     }
 
     public void enable_step_counter(){
         use_acc = false;
         use_step_counter = true;
+        stepsCountTextView.setText(String.valueOf(mAndroidStepCount));
+        stepsCountProgressBar.setProgress(mAndroidStepCount);
+    }
+
+    public void reset(){
+        mACCStepCounter = 0;
+        mAndroidStepCount = 0;
+        if(use_acc) enable_accelerator();
+        else enable_step_counter();
     }
 }
 
